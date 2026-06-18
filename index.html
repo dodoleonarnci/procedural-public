@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PROCEDURAL — VLA for the Factory Floor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bungee&family=Archivo:wght@400;500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0b0810;
+    --steel-950:#0a0f17;
+    --steel-900:#0d1521;
+    --steel-800:#13202f;
+    --steel-700:#1c2d40;
+    --steel-600:#273c53;
+    --steel-blue:#7f9bb8;
+    --steel-haze:#9db6cf;
+    --red:#ff3322;
+    --orange:#ff7a1a;
+    --amber:#ffae27;
+    --yellow:#ffe14d;
+    --paper:#efe6d4;
+    --paper-2:#e4d8c0;
+    --line:#0b0810;
+    --r:4px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Archivo',sans-serif;
+    background:var(--steel-950);
+    color:var(--paper);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--orange);color:var(--ink)}
+
+  /* ---------- TEXTURES ---------- */
+  .halftone{
+    background-image:radial-gradient(circle, rgba(255,255,255,.10) 1.1px, transparent 1.4px);
+    background-size:9px 9px;
+  }
+  .halftone-dark{
+    background-image:radial-gradient(circle, rgba(11,8,16,.20) 1.3px, transparent 1.5px);
+    background-size:10px 10px;
+  }
+  .grain{
+    position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- COMIC LETTERING ---------- */
+  .bam{
+    position:relative;
+    display:inline-block;
+    font-family:'Anton',sans-serif;
+    line-height:.86;
+    letter-spacing:.035em;
+    transform:skewX(-7deg);
+    background:linear-gradient(177deg,var(--red) 2%,var(--orange) 26%,var(--amber) 54%,var(--yellow) 82%,#fff39a 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(5px 6px 0 rgba(7,5,11,.85));
+  }
+  .bam::before,.bam::after{
+    content:attr(data-text);
+    position:absolute;left:0;top:0;width:100%;
+    -webkit-background-clip:initial;background:none;
+  }
+  .bam::before{ -webkit-text-stroke:.24em var(--ink); color:var(--ink); z-index:-2; }
+  .bam::after{ -webkit-text-stroke:.11em var(--orange); color:transparent; z-index:-1; }
+
+  .bam.sm{ filter:drop-shadow(3px 4px 0 rgba(7,5,11,.8)); }
+  .bam.sm::before{ -webkit-text-stroke:.22em var(--ink); }
+  .bam.sm::after{ -webkit-text-stroke:.10em var(--orange); }
+
+  /* steel variant for headings on light panels */
+  .bam.steel{
+    background:linear-gradient(177deg,#cfe0f0 0%,var(--steel-blue) 40%,var(--steel-700) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(3px 4px 0 rgba(7,5,11,.6));
+  }
+  .bam.steel::after{ -webkit-text-stroke:.12em var(--steel-blue); }
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+  section{position:relative}
+
+  .panel{
+    border:5px solid var(--ink);
+    box-shadow:9px 10px 0 rgba(7,5,11,.9);
+    background:var(--steel-800);
+  }
+  .tag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'Space Mono',monospace;font-weight:700;
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink);background:var(--amber);
+    padding:6px 13px;border:3px solid var(--ink);
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:200;
+    background:var(--steel-950);
+    border-bottom:5px solid var(--ink);
+  }
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{
+    font-family:'Anton',sans-serif;font-size:26px;letter-spacing:.04em;
+    color:var(--paper);text-decoration:none;transform:skewX(-7deg);
+    display:inline-block;
+  }
+  .brand b{color:var(--orange)}
+  .nav-links{display:flex;align-items:center;gap:30px}
+  .nav-links a{
+    font-family:'Space Mono',monospace;font-size:13px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--steel-haze);
+    text-decoration:none;transition:color .15s;
+  }
+  .nav-links a:hover{color:var(--yellow)}
+
+  .btn{
+    font-family:'Bungee',sans-serif;font-size:14px;letter-spacing:.02em;
+    text-transform:uppercase;text-decoration:none;cursor:pointer;
+    display:inline-flex;align-items:center;gap:9px;
+    padding:13px 22px;border:4px solid var(--ink);
+    background:var(--orange);color:var(--ink);
+    box-shadow:5px 5px 0 var(--ink);
+    transition:transform .08s ease,box-shadow .08s ease,background .15s;
+  }
+  .btn:hover{background:var(--yellow)}
+  .btn:active{transform:translate(5px,5px);box-shadow:0 0 0 var(--ink)}
+  .btn.sm{padding:9px 16px;font-size:12px;box-shadow:4px 4px 0 var(--ink)}
+  .btn.ghost{background:var(--steel-700);color:var(--paper)}
+  .btn.ghost:hover{background:var(--steel-600)}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 80% -10%, rgba(255,122,26,.18), transparent 55%),
+      radial-gradient(100% 80% at 0% 110%, rgba(127,155,184,.16), transparent 60%),
+      linear-gradient(180deg,var(--steel-900),var(--steel-950));
+    padding:64px 0 86px;
+  }
+  .hero .halftone{position:absolute;inset:0;opacity:.5;pointer-events:none}
+  /* speed-line burst */
+  .burst{
+    position:absolute;top:-18%;right:-12%;width:780px;height:780px;
+    background:repeating-conic-gradient(from 0deg at 50% 50%,
+      rgba(255,174,39,.10) 0deg 3deg, transparent 3deg 9deg);
+    border-radius:50%;pointer-events:none;
+    animation:spin 60s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .hero-grid{
+    position:relative;z-index:2;
+    display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;font-weight:700;font-size:13px;
+    letter-spacing:.26em;text-transform:uppercase;color:var(--amber);
+    margin-bottom:22px;display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::before{content:"";width:34px;height:3px;background:var(--orange)}
+  h1.hero-title{font-size:clamp(54px,9vw,118px);margin:0 0 8px;letter-spacing:.05em}
+  .hero-sub-word{font-size:clamp(28px,4.8vw,58px);display:block;margin-top:-2px;letter-spacing:.04em}
+  .hero-lede{
+    max-width:430px;margin:26px 0 32px;font-size:18px;line-height:1.5;
+    color:var(--steel-haze);
+  }
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+
+  .hero-visual{position:relative}
+  .hero-frame{position:relative;transform:rotate(1.6deg)}
+  .hero-frame img{display:block;width:100%;height:auto;filter:saturate(1.05) contrast(1.03)}
+  .frame-cap{
+    position:absolute;left:-6px;bottom:14px;
+    font-family:'Space Mono',monospace;font-weight:700;font-size:11px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--paper);
+    background:var(--ink);padding:7px 12px;border:3px solid var(--orange);
+  }
+  .starburst{
+    position:absolute;z-index:5;top:-34px;right:-26px;
+    width:128px;height:128px;display:grid;place-items:center;
+    color:var(--ink);text-align:center;
+    font-family:'Bungee',sans-serif;font-size:14px;line-height:1.05;
+    background:var(--yellow);
+    border:4px solid var(--ink);
+    clip-path:polygon(50% 0,61% 18%,82% 11%,80% 33%,100% 41%,85% 56%,97% 76%,73% 75%,67% 97%,50% 84%,33% 97%,27% 75%,3% 76%,15% 56%,0 41%,20% 33%,18% 11%,39% 18%);
+    transform:rotate(-12deg);
+    animation:wobble 5s ease-in-out infinite;
+  }
+  @keyframes wobble{0%,100%{transform:rotate(-12deg) scale(1)}50%{transform:rotate(-7deg) scale(1.05)}}
+
+  /* ---------- MARQUEE ---------- */
+  .marquee{
+    background:var(--orange);border-top:5px solid var(--ink);border-bottom:5px solid var(--ink);
+    overflow:hidden;padding:13px 0;
+  }
+  .marquee-track{display:flex;gap:0;white-space:nowrap;width:max-content;animation:slide 26s linear infinite}
+  .marquee span{
+    font-family:'Anton',sans-serif;font-size:24px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink);padding:0 26px;display:inline-flex;align-items:center;gap:26px;
+  }
+  .marquee span::after{content:"✦";color:var(--steel-800);font-size:16px}
+  @keyframes slide{to{transform:translateX(-50%)}}
+
+  /* ---------- SECTION HEADERS ---------- */
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:40px}
+  .sec-head h2{font-size:clamp(40px,6vw,76px)}
+  .sec-note{font-family:'Space Mono',monospace;font-size:13px;color:var(--steel-blue);max-width:300px;line-height:1.6}
+
+  /* ---------- PROBLEM STRIP (light) ---------- */
+  .strip{background:var(--paper);color:var(--ink);padding:84px 0;border-top:5px solid var(--ink);border-bottom:5px solid var(--ink)}
+  .strip .halftone-dark{position:absolute;inset:0;opacity:.6;pointer-events:none}
+  .strip .wrap{position:relative;z-index:2}
+  .strip .sec-note{color:var(--steel-700)}
+  .comic-row{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .cpanel{
+    background:var(--paper-2);border:5px solid var(--ink);box-shadow:8px 9px 0 var(--ink);
+    overflow:hidden;display:flex;flex-direction:column;min-height:230px;
+  }
+  .cpanel .num{
+    font-family:'Bungee',sans-serif;font-size:13px;color:var(--paper);background:var(--ink);
+    padding:8px 14px;align-self:flex-start;margin:14px 0 0 14px;
+  }
+  .cpanel .cbody{padding:22px 22px 26px;display:flex;flex-direction:column;justify-content:flex-end;flex:1}
+  .cpanel h3{font-family:'Anton',sans-serif;font-size:30px;line-height:.95;text-transform:uppercase;margin-bottom:8px}
+  .cpanel p{font-family:'Space Mono',monospace;font-size:13px;color:var(--steel-700);line-height:1.5}
+  .cpanel.flip{background:var(--ink);color:var(--paper)}
+  .cpanel.flip .num{background:var(--orange);color:var(--ink)}
+  .cpanel.flip p{color:var(--steel-haze)}
+  .cpanel.flip h3{color:var(--yellow)}
+
+  /* ---------- VLA / HOW ---------- */
+  .how{padding:90px 0;background:linear-gradient(180deg,var(--steel-950),var(--steel-900))}
+  .vla-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .vcard{
+    position:relative;padding:30px 26px 34px;background:var(--steel-800);
+    border:5px solid var(--ink);box-shadow:8px 9px 0 rgba(7,5,11,.9);overflow:hidden;
+  }
+  .vcard .vhalf{position:absolute;inset:0;opacity:.4;pointer-events:none}
+  .vcard .vinner{position:relative;z-index:2}
+  .vstep{font-family:'Bungee',sans-serif;font-size:13px;color:var(--orange);letter-spacing:.05em}
+  .vicon{
+    width:64px;height:64px;margin:18px 0 20px;display:grid;place-items:center;
+    border:4px solid var(--ink);background:var(--yellow);color:var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+  }
+  .vicon svg{width:34px;height:34px}
+  .vcard h3{font-family:'Anton',sans-serif;font-size:34px;text-transform:uppercase;margin-bottom:10px;letter-spacing:.02em}
+  .vcard p{font-size:15px;line-height:1.55;color:var(--steel-haze)}
+  .vcard:nth-child(2) .vicon{background:var(--orange)}
+  .vcard:nth-child(3) .vicon{background:var(--red);color:var(--paper)}
+
+  /* ---------- SHOWCASE ---------- */
+  .showcase{padding:0 0 0;position:relative}
+  .show-frame{position:relative;border-top:5px solid var(--ink);border-bottom:5px solid var(--ink)}
+  .show-frame img{display:block;width:100%;height:clamp(360px,55vh,640px);object-fit:cover;filter:contrast(1.05) saturate(1.05)}
+  .show-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(7,11,18,.86) 0%,rgba(7,11,18,.35) 45%,transparent 70%);
+    display:flex;align-items:center;
+  }
+  .speech{
+    position:relative;max-width:520px;margin-left:8%;
+    background:var(--paper);color:var(--ink);border:5px solid var(--ink);
+    box-shadow:9px 10px 0 rgba(7,5,11,.9);padding:30px 34px;
+  }
+  .speech::after{
+    content:"";position:absolute;left:60px;bottom:-26px;
+    width:0;height:0;border:21px solid transparent;border-top-color:var(--ink);
+  }
+  .speech::before{
+    content:"";position:absolute;left:64px;bottom:-15px;z-index:2;
+    width:0;height:0;border:15px solid transparent;border-top-color:var(--paper);
+  }
+  .speech .tag{margin-bottom:16px}
+  .speech h2{font-family:'Anton',sans-serif;font-size:clamp(30px,4.5vw,52px);text-transform:uppercase;line-height:.95}
+  .speech p{font-family:'Space Mono',monospace;font-size:14px;color:var(--steel-700);margin-top:12px;line-height:1.5}
+
+  /* ---------- STATS ---------- */
+  .stats{padding:88px 0;background:var(--steel-900)}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .stat{
+    text-align:center;padding:34px 16px;background:var(--steel-800);
+    border:5px solid var(--ink);box-shadow:7px 8px 0 rgba(7,5,11,.9);
+  }
+  .stat .big{font-size:clamp(48px,7vw,82px);line-height:.9}
+  .stat .lbl{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel-haze);margin-top:14px}
+
+  /* ---------- CTA ---------- */
+  .cta{
+    position:relative;overflow:hidden;padding:110px 0 120px;text-align:center;
+    background:
+      radial-gradient(90% 120% at 50% 0%, rgba(255,122,26,.22), transparent 60%),
+      var(--steel-950);
+    border-top:5px solid var(--ink);
+  }
+  .cta .burst{top:-40%;left:50%;right:auto;transform:translateX(-50%);opacity:.7}
+  .cta-in{position:relative;z-index:2}
+  .cta h2{font-size:clamp(54px,9vw,128px);margin-bottom:8px}
+  .cta p{font-family:'Space Mono',monospace;color:var(--steel-haze);font-size:15px;letter-spacing:.1em;margin:18px 0 34px;text-transform:uppercase}
+  .cta .btn{font-size:18px;padding:18px 34px}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ink);padding:46px 0;border-top:5px solid var(--orange)}
+  .foot-in{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .foot-brand{font-family:'Anton',sans-serif;font-size:30px;color:var(--paper);transform:skewX(-7deg)}
+  .foot-brand b{color:var(--orange)}
+  .foot-links{display:flex;gap:24px;flex-wrap:wrap}
+  .foot-links a{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel-blue);text-decoration:none}
+  .foot-links a:hover{color:var(--yellow)}
+  .copy{font-family:'Space Mono',monospace;font-size:12px;color:var(--steel-600);width:100%;margin-top:8px}
+
+  /* ---------- REVEAL ANIM ---------- */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .load{opacity:0;animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .d1{animation-delay:.05s}.d2{animation-delay:.18s}.d3{animation-delay:.31s}.d4{animation-delay:.44s}.d5{animation-delay:.57s}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media(max-width:920px){
+    .hero-grid,.comic-row,.vla-grid,.stat-grid{grid-template-columns:1fr}
+    .stat-grid{grid-template-columns:repeat(2,1fr)}
+    .nav-links a:not(.btn){display:none}
+    .hero-visual{order:-1}
+    .starburst{width:104px;height:104px;font-size:12px;top:-24px;right:-10px}
+    .speech{margin:0 18px}
+    .show-overlay{background:linear-gradient(180deg,rgba(7,11,18,.4),rgba(7,11,18,.85))}
+  }
+  @media(max-width:560px){
+    .wrap{padding:0 18px}
+    .stat-grid{grid-template-columns:1fr}
+    .marquee span{font-size:18px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap nav-in">
+    <a href="#" class="brand">PROCEDU<b>RAL</b></a>
+    <div class="nav-links">
+      <a href="#model">Model</a>
+      <a href="#how">How</a>
+      <a href="#proof">Proof</a>
+      <a href="#deploy" class="btn sm">Deploy ▸</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="model">
+  <div class="halftone"></div>
+  <div class="burst"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow load d1">Finetuned Vision · Language · Action</div>
+      <h1 class="hero-title load d2">
+        <span class="bam" data-text="PROCEDURAL">PROCEDURAL</span>
+        <span class="bam sm hero-sub-word" data-text="RUNS THE LINE">RUNS THE LINE</span>
+      </h1>
+      <p class="hero-lede load d3">One model that sees the part, reads the task, and works the line. Placeholder copy — edit me.</p>
+      <div class="hero-cta load d4">
+        <a href="#deploy" class="btn">Deploy a Line</a>
+        <a href="#how" class="btn ghost">Watch Demo</a>
+      </div>
+    </div>
+    <div class="hero-visual load d5">
+      <div class="starburst">VLA<br>POWERED!</div>
+      <div class="hero-frame panel">
+        <img src="robot_arms.png" alt="Robotic arms working an automated assembly line" />
+        <span class="frame-cap">LINE 02-E · LIVE</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>TOYS</span><span>TOOLS</span><span>PACKAGING</span><span>ASSEMBLY</span><span>PICK &amp; PLACE</span><span>RETOOLING</span>
+    <span>TOYS</span><span>TOOLS</span><span>PACKAGING</span><span>ASSEMBLY</span><span>PICK &amp; PLACE</span><span>RETOOLING</span>
+  </div>
+</div>
+
+<!-- PROBLEM STRIP -->
+<section class="strip" id="proof">
+  <div class="halftone-dark"></div>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2><span class="bam steel" data-text="THE PROBLEM">THE PROBLEM</span></h2>
+      <p class="sec-note">Issue #01 — Why commodity lines stall. Short placeholder text for editing.</p>
+    </div>
+    <div class="comic-row">
+      <div class="cpanel reveal">
+        <span class="num">01</span>
+        <div class="cbody"><h3>Lines change daily</h3><p>New SKU, new layout. Placeholder.</p></div>
+      </div>
+      <div class="cpanel flip reveal">
+        <span class="num">02</span>
+        <div class="cbody"><h3>Robots can't adapt</h3><p>Months of reprogramming. Placeholder.</p></div>
+      </div>
+      <div class="cpanel reveal">
+        <span class="num">03</span>
+        <div class="cbody"><h3>Until now</h3><p>One model, any task. Placeholder.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW / VLA -->
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2><span class="bam sm" data-text="HOW IT WORKS">HOW IT WORKS</span></h2>
+      <p class="sec-note">Vision in. Action out. Three steps, one network.</p>
+    </div>
+    <div class="vla-grid">
+      <div class="vcard reveal">
+        <div class="halftone vhalf"></div>
+        <div class="vinner">
+          <div class="vstep">STEP 01</div>
+          <div class="vicon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h3>Vision</h3>
+          <p>It sees the part on the belt. Placeholder description.</p>
+        </div>
+      </div>
+      <div class="vcard reveal">
+        <div class="halftone vhalf"></div>
+        <div class="vinner">
+          <div class="vstep">STEP 02</div>
+          <div class="vicon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+          </div>
+          <h3>Language</h3>
+          <p>It reads the task in plain words. Placeholder.</p>
+        </div>
+      </div>
+      <div class="vcard reveal">
+        <div class="halftone vhalf"></div>
+        <div class="vinner">
+          <div class="vstep">STEP 03</div>
+          <div class="vicon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4"/><circle cx="12" cy="12" r="3.4"/></svg>
+          </div>
+          <h3>Action</h3>
+          <p>It moves the arm with precision. Placeholder.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWCASE -->
+<section class="showcase">
+  <div class="show-frame">
+    <img src="factory_line.png" alt="Automated factory transit line" />
+    <div class="show-overlay">
+      <div class="wrap" style="width:100%">
+        <div class="speech reveal">
+          <span class="tag">Deployed</span>
+          <h2>Running on real lines</h2>
+          <p>// From pilot cell to full floor. Placeholder caption for your metrics.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="wrap">
+    <div class="stat-grid">
+      <div class="stat reveal"><div class="big bam sm" data-text="10×">10×</div><div class="lbl">Faster Retooling</div></div>
+      <div class="stat reveal"><div class="big bam sm" data-text="0">0</div><div class="lbl">Lines of Robot Code</div></div>
+      <div class="stat reveal"><div class="big bam sm" data-text="1">1</div><div class="lbl">Model, Any Task</div></div>
+      <div class="stat reveal"><div class="big bam sm" data-text="24/7">24/7</div><div class="lbl">Floor Uptime</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="deploy">
+  <div class="burst"></div>
+  <div class="wrap cta-in">
+    <div class="tag reveal" style="margin-bottom:22px">Ready when you are</div>
+    <h2 class="reveal"><span class="bam" data-text="DEPLOY">DEPLOY</span></h2>
+    <p class="reveal">Bring PROCEDURAL to your floor — placeholder line.</p>
+    <a href="#" class="btn reveal">Book a Pilot ▸</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot-in">
+    <div class="foot-brand">PROCEDU<b>RAL</b></div>
+    <div class="foot-links">
+      <a href="#model">Model</a>
+      <a href="#how">How</a>
+      <a href="#proof">Proof</a>
+      <a href="#deploy">Deploy</a>
+    </div>
+    <div class="copy">© 2026 PROCEDURAL — Placeholder. Finetuned VLA for commodity manufacturing.</div>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.18});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // subtle hero image parallax
+  const frame = document.querySelector('.hero-frame');
+  if(frame && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    addEventListener('scroll',()=>{
+      const y = Math.min(scrollY,700);
+      frame.style.transform = `rotate(${1.6 - y*0.004}deg) translateY(${y*0.04}px)`;
+    },{passive:true});
+  }
+</script>
+</body>
+</html>
