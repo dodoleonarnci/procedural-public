@@ -38,28 +38,27 @@
 
   /* ---------- GARAGE-DOOR INTRO ---------- */
   .door{
-    position:fixed;inset:0;z-index:10000;pointer-events:none;
+    position:fixed;inset:0;z-index:10000;pointer-events:none;overflow:hidden;
+    box-shadow:0 26px 50px rgba(0,0,0,.55);
+    transform:translateZ(0);will-change:transform;
+    animation:doorUp 1.5s cubic-bezier(.3,.7,.4,1) forwards;
+  }
+  .door-skin{
+    position:absolute;inset:0;
     /* door.png supplied separately; metallic panels show as fallback until then */
     background:
       url("door.png") center/cover no-repeat,
       repeating-linear-gradient(180deg,#2b2f37 0 58px,#22262d 58px 60px);
     background-color:#22262d;
-    box-shadow:0 26px 50px rgba(0,0,0,.55);
-    transform:translateZ(0);will-change:transform;
-    animation:doorUp 2.4s cubic-bezier(.45,.02,.55,1) .35s forwards;
+    /* slightly darker + less glossy (lower contrast/saturation knocks back the sheen) */
+    filter:brightness(.8) contrast(1.2) saturate(0.6);
   }
-  /* rolls upward with small catches/settle-backs for a realistic, slightly jagged lift */
+  /* lifts into view, then one clearly-visible jagged catch, then a smooth continuous lift */
   @keyframes doorUp{
     0%   {transform:translateY(0)}
-    7%   {transform:translateY(-2.5%)}
-    11%  {transform:translateY(-0.8%)}
-    26%  {transform:translateY(-25%)}
-    31%  {transform:translateY(-21%)}
-    49%  {transform:translateY(-49%)}
-    54%  {transform:translateY(-45%)}
-    72%  {transform:translateY(-76%)}
-    77%  {transform:translateY(-73%)}
-    91%  {transform:translateY(-97%)}
+    18%  {transform:translateY(-11%)}   /* lifts into view first */
+    26%  {transform:translateY(-15%)}   /* jolt */
+    34%  {transform:translateY(-10%)}   /* settles back — the visible catch */
     100% {transform:translateY(-101%)}
   }
 
@@ -152,7 +151,7 @@
 </head>
 <body>
 <!-- garage-door intro overlay (door.png supplied separately) -->
-<div class="door" id="door" aria-hidden="true"></div>
+<div class="door" id="door" aria-hidden="true"><div class="door-skin"></div></div>
 <div class="grain"></div>
 
 <!-- HERO: full-bleed live feed (robot_arms.png → replace with GIF) -->
