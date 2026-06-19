@@ -36,20 +36,54 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* ---------- GARAGE-DOOR INTRO ---------- */
+  .door{
+    position:fixed;inset:0;z-index:10000;pointer-events:none;
+    /* door.png supplied separately; metallic panels show as fallback until then */
+    background:
+      url("door.png") center/cover no-repeat,
+      repeating-linear-gradient(180deg,#2b2f37 0 58px,#22262d 58px 60px);
+    background-color:#22262d;
+    box-shadow:0 26px 50px rgba(0,0,0,.55);
+    transform:translateZ(0);will-change:transform;
+    animation:doorUp 2.4s cubic-bezier(.45,.02,.55,1) .35s forwards;
+  }
+  /* rolls upward with small catches/settle-backs for a realistic, slightly jagged lift */
+  @keyframes doorUp{
+    0%   {transform:translateY(0)}
+    7%   {transform:translateY(-2.5%)}
+    11%  {transform:translateY(-0.8%)}
+    26%  {transform:translateY(-25%)}
+    31%  {transform:translateY(-21%)}
+    49%  {transform:translateY(-49%)}
+    54%  {transform:translateY(-45%)}
+    72%  {transform:translateY(-76%)}
+    77%  {transform:translateY(-73%)}
+    91%  {transform:translateY(-97%)}
+    100% {transform:translateY(-101%)}
+  }
+
   .wrap{max-width:1200px;margin:0 auto;padding:0 32px}
 
-  /* brand wordmark — common, reliably-rendering sans */
+  /* brand wordmark — bold display, warm two-tone, comic outline via text-shadow.
+     (Solid fill + text-shadow renders reliably; the old background-clip gradient did not.) */
   .bam{
     display:inline-block;
-    font-family:'Archivo','Helvetica Neue',Arial,sans-serif;
-    font-weight:700;line-height:1.02;letter-spacing:-.015em;
+    font-family:'Anton','Archivo','Helvetica Neue',Arial,sans-serif;
+    font-weight:400;line-height:1.08;letter-spacing:.01em;
     text-transform:uppercase;
-    color:var(--paper);
+    transform:skewX(-4deg);
+    color:var(--orange);
+    text-shadow:
+      -2px -2px 0 var(--ink), 2px -2px 0 var(--ink),
+      -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
+      4px 6px 0 rgba(7,10,15,.45);
   }
+  .bam .b2{color:var(--yellow)}
 
   .kicker{
     font-family:'Space Mono',monospace;font-weight:700;
-    font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+    font-size:15px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
     color:var(--orange);display:inline-flex;align-items:center;gap:12px;
   }
   .kicker::before{content:"";width:26px;height:2px;background:var(--orange)}
@@ -70,14 +104,14 @@
   .hero{
     position:relative;overflow:hidden;display:flex;align-items:center;
     min-height:100vh;padding:48px 0;
-    /* NOTE: swap robot_arms.png for an autoplaying .gif of the live cell */
-    background:#0a0e14 url("robot_arms.png") center/cover no-repeat;
+    /* live-cell background — autoplaying GIF */
+    background:#0a0e14 url("factory_line.gif") center/cover no-repeat;
   }
   .hero-scrim{
     position:absolute;inset:0;z-index:1;pointer-events:none;
     background:
-      linear-gradient(90deg, rgba(7,10,15,.94) 0%, rgba(7,10,15,.74) 36%, rgba(7,10,15,.32) 66%, rgba(7,10,15,.6) 100%),
-      linear-gradient(180deg, rgba(7,10,15,.55) 0%, transparent 26%, rgba(7,10,15,.72) 100%);
+      linear-gradient(90deg, rgba(7,10,15,.86) 0%, rgba(7,10,15,.6) 36%, rgba(7,10,15,.2) 66%, rgba(7,10,15,.46) 100%),
+      linear-gradient(180deg, rgba(7,10,15,.42) 0%, transparent 30%, rgba(7,10,15,.58) 100%);
   }
   .hero::after{ /* scanlines + halftone — sells the "live video" feel, keeps comic-graphic flavor */
     content:"";position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:overlay;opacity:.45;
@@ -87,33 +121,38 @@
     background-size:100% 3px, 11px 11px;
   }
   .feed-tag{
-    position:absolute;top:28px;right:32px;z-index:3;display:inline-flex;align-items:center;gap:9px;
-    font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-    color:var(--paper);background:rgba(7,10,15,.6);backdrop-filter:blur(5px);
-    padding:8px 13px;border-radius:3px;border:1px solid var(--line-2);
+    position:absolute;top:24px;right:32px;z-index:3;display:inline-flex;align-items:center;gap:11px;
+    font-family:'Space Mono',monospace;font-weight:700;font-size:15px;letter-spacing:.2em;text-transform:uppercase;
+    color:#fff;background:rgba(7,10,15,.68);backdrop-filter:blur(5px);
+    padding:11px 18px;border-radius:4px;border:1px solid var(--line-2);
   }
-  .rec{width:9px;height:9px;border-radius:50%;background:#ff3b30;box-shadow:0 0 9px rgba(255,59,48,.8);animation:blink 1.4s steps(2,start) infinite}
+  .rec{width:12px;height:12px;border-radius:50%;background:#ff3b30;box-shadow:0 0 12px rgba(255,59,48,.9);animation:blink 1.4s steps(2,start) infinite}
   @keyframes blink{50%{opacity:.2}}
   .hero-inner{position:relative;z-index:2;max-width:660px}
-  .hero h1{font-size:clamp(42px,7.2vw,96px);margin:18px 0 0;filter:drop-shadow(2px 3px 5px rgba(0,0,0,.55))}
-  .hero .lede{max-width:452px;margin:26px 0 34px;font-size:18px;color:#c4d2df}
-  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .hero h1{font-size:clamp(46px,7.8vw,108px);margin:18px 0 0}
+  .hero-cta{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:32px}
+  .cta-note{font-size:16px;color:#c4d2df}
 
-  /* ---------- LOAD-IN ---------- */
-  .load{opacity:0;animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
-  @keyframes rise{to{opacity:1;transform:none}}
-  .d1{animation-delay:.05s}.d2{animation-delay:.16s}.d3{animation-delay:.27s}.d4{animation-delay:.38s}
+  /* ---------- LOAD-IN (simple fade-in) ---------- */
+  .load{opacity:0;animation:fadeIn .9s ease forwards}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .d1{animation-delay:.15s}.d2{animation-delay:.35s}.d3{animation-delay:.55s}.d4{animation-delay:.75s}
 
   @media(max-width:540px){
     .wrap{padding:0 20px}
-    .feed-tag{top:20px;right:20px}
+    .feed-tag{top:20px;right:20px;font-size:13px}
+    .kicker{white-space:normal;letter-spacing:.1em}
   }
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
+    .load{opacity:1}
+    .door{display:none}
   }
 </style>
 </head>
 <body>
+<!-- garage-door intro overlay (door.png supplied separately) -->
+<div class="door" id="door" aria-hidden="true"></div>
 <div class="grain"></div>
 
 <!-- HERO: full-bleed live feed (robot_arms.png → replace with GIF) -->
@@ -122,12 +161,16 @@
   <span class="feed-tag"><span class="rec"></span>Live</span>
   <div class="wrap hero-inner">
     <span class="kicker load d1">Finetunable VLA Architecture for Automated Manufacturing</span>
-    <h1 class="load d2"><span class="bam">PROCEDURAL ROBOTICS</span></h1>
-    <p class="lede load d3">Beta-testing in Dongguan, China.</p>
-    <div class="hero-cta load d4">
+    <h1 class="load d2"><span class="bam">Procedural <span class="b2">Robotics</span></span></h1>
+    <div class="hero-cta load d3">
       <a href="https://www.linkedin.com/posts/noahhweiss_for-my-cs153-final-project-i-built-farm-ugcPost-7468499349677948928-CPAd/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEDG_6wBiH67VbCo5iskvof-gJThSIlT2p4" class="btn"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7L0 14z"/></svg>Watch demo</a>
+      <span class="cta-note">Beta-testing in Dongguan, China.</span>
     </div>
   </div>
 </header>
+<script>
+  var door = document.getElementById('door');
+  if (door) door.addEventListener('animationend', function(){ door.style.display = 'none'; });
+</script>
 </body>
 </html>
