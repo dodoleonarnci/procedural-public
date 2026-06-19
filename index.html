@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>PROCEDURAL — A finetuned VLA model for the factory floor</title>
+<title>Procedural Robotics</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -11,26 +11,15 @@
   :root{
     --ink:#070a0f;
     --steel-950:#090d13;
-    --steel-900:#0d131b;
-    --steel-850:#111923;
-    --steel-800:#16202c;
-    --steel-700:#1d2937;
-    --steel-600:#2a3a4c;
-    --line:rgba(255,255,255,.09);
-    --line-2:rgba(255,255,255,.16);
     --paper:#eef3f8;
-    --muted:#92a4b6;
-    --muted-2:#6c7e90;
+    --line-2:rgba(255,255,255,.16);
     --orange:#ff6b2c;
-    --orange-soft:#ff8a4a;
     --amber:#ffb02e;
     --yellow:#ffe14d;
     --red:#ff3322;
-    --steel-blue:#8aa6c0;
   }
 
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
   body{
     font-family:'Archivo',sans-serif;
     background:var(--steel-950);
@@ -41,7 +30,6 @@
   }
   ::selection{background:var(--orange);color:var(--ink)}
   a{color:inherit}
-  img{display:block;max-width:100%}
 
   .grain{
     position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;mix-blend-mode:overlay;
@@ -49,25 +37,13 @@
   }
 
   .wrap{max-width:1200px;margin:0 auto;padding:0 32px}
-  section{position:relative}
 
-  /* ---- comic signature: gradient display lettering (graphics + fonts) ---- */
+  /* brand wordmark — common, reliably-rendering sans */
   .bam{
     display:inline-block;
-    font-family:'Anton',sans-serif;line-height:.9;letter-spacing:.02em;
-    transform:skewX(-5deg);
-    background:linear-gradient(176deg,var(--red) 4%,var(--orange) 30%,var(--amber) 60%,var(--yellow) 88%,#fff39a 100%);
-    -webkit-background-clip:text;background-clip:text;
-    color:transparent;-webkit-text-fill-color:transparent;
-    /* outline UNDER the clipped fill — text-shadow / behind-pseudo both overpaint the gradient */
-    -webkit-text-stroke:.05em var(--ink);
-    paint-order:stroke fill;
-  }
-
-  /* clean display heading (Anton, solid) — keeps font character, drops the comic loudness */
-  .display{
-    font-family:'Anton',sans-serif;font-weight:400;
-    letter-spacing:.01em;line-height:.98;text-transform:uppercase;
+    font-family:'Archivo','Helvetica Neue',Arial,sans-serif;
+    font-weight:700;line-height:1.02;letter-spacing:-.015em;
+    text-transform:uppercase;
     color:var(--paper);
   }
 
@@ -78,44 +54,22 @@
   }
   .kicker::before{content:"";width:26px;height:2px;background:var(--orange)}
 
-  /* ---------- BUTTONS ---------- */
+  /* ---------- BUTTON ---------- */
   .btn{
     font-family:'Space Mono',monospace;font-weight:700;font-size:13px;
     letter-spacing:.1em;text-transform:uppercase;text-decoration:none;cursor:pointer;
-    display:inline-flex;align-items:center;gap:10px;
-    padding:14px 24px;border-radius:3px;border:1px solid transparent;
-    transition:transform .18s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease;
+    display:inline-flex;align-items:center;gap:11px;
+    padding:14px 24px;border-radius:3px;border:1px solid var(--line-2);
+    background:rgba(9,13,19,.5);color:var(--paper);backdrop-filter:blur(4px);
+    transition:transform .18s ease,border-color .2s ease,color .2s ease;
   }
-  .btn.primary{background:var(--orange);color:var(--ink);box-shadow:0 12px 30px -12px rgba(255,107,44,.7)}
-  .btn.primary:hover{transform:translateY(-2px);background:var(--orange-soft);box-shadow:0 18px 38px -12px rgba(255,107,44,.75)}
-  .btn.ghost{background:rgba(9,13,19,.5);color:var(--paper);border-color:var(--line-2);backdrop-filter:blur(4px)}
-  .btn.ghost:hover{border-color:var(--orange);color:#fff;transform:translateY(-2px)}
-  .btn.sm{padding:10px 18px;font-size:12px}
-
-  /* ---------- NAV ---------- */
-  nav{
-    position:sticky;top:0;z-index:200;
-    background:rgba(9,13,19,.7);backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--line);
-  }
-  .nav-in{display:flex;align-items:center;justify-content:space-between;height:70px}
-  .brand{
-    font-family:'Anton',sans-serif;font-size:24px;letter-spacing:.04em;
-    color:var(--paper);text-decoration:none;transform:skewX(-5deg);display:inline-flex;align-items:baseline;
-  }
-  .brand i{display:inline-block;width:7px;height:7px;background:var(--orange);margin-left:5px;transform:skewX(5deg)}
-  .nav-links{display:flex;align-items:center;gap:34px}
-  .nav-links a:not(.btn){
-    font-family:'Space Mono',monospace;font-size:13px;font-weight:700;
-    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
-    text-decoration:none;transition:color .18s;
-  }
-  .nav-links a:not(.btn):hover{color:var(--paper)}
+  .btn:hover{border-color:var(--orange);color:#fff;transform:translateY(-2px)}
+  .btn svg{width:11px;height:13px;fill:var(--orange)}
 
   /* ---------- HERO (full-bleed live feed) ---------- */
   .hero{
     position:relative;overflow:hidden;display:flex;align-items:center;
-    min-height:min(860px,90vh);padding:120px 0 96px;
+    min-height:100vh;padding:48px 0;
     /* NOTE: swap robot_arms.png for an autoplaying .gif of the live cell */
     background:#0a0e14 url("robot_arms.png") center/cover no-repeat;
   }
@@ -133,7 +87,7 @@
     background-size:100% 3px, 11px 11px;
   }
   .feed-tag{
-    position:absolute;top:96px;right:32px;z-index:3;display:inline-flex;align-items:center;gap:9px;
+    position:absolute;top:28px;right:32px;z-index:3;display:inline-flex;align-items:center;gap:9px;
     font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
     color:var(--paper);background:rgba(7,10,15,.6);backdrop-filter:blur(5px);
     padding:8px 13px;border-radius:3px;border:1px solid var(--line-2);
@@ -141,288 +95,39 @@
   .rec{width:9px;height:9px;border-radius:50%;background:#ff3b30;box-shadow:0 0 9px rgba(255,59,48,.8);animation:blink 1.4s steps(2,start) infinite}
   @keyframes blink{50%{opacity:.2}}
   .hero-inner{position:relative;z-index:2;max-width:660px}
-  .hero h1{font-size:clamp(58px,9.4vw,134px);margin:22px 0 0;filter:drop-shadow(3px 5px 6px rgba(0,0,0,.6))}
+  .hero h1{font-size:clamp(42px,7.2vw,96px);margin:18px 0 0;filter:drop-shadow(2px 3px 5px rgba(0,0,0,.55))}
   .hero .lede{max-width:452px;margin:26px 0 34px;font-size:18px;color:#c4d2df}
   .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
 
-  /* ---------- CONVEYOR BELT ---------- */
-  .belt{position:relative;overflow:hidden;background:#0a1019;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .belt-rail{height:7px;background:repeating-linear-gradient(45deg,var(--amber) 0 11px,#10161e 11px 22px);opacity:.4}
-  .belt-surface{position:relative;height:96px;overflow:hidden;background:linear-gradient(180deg,#1b2835 0%,#0f1924 100%)}
-  .belt-slats{ /* moving belt segments */
-    position:absolute;inset:0;
-    background:repeating-linear-gradient(90deg,
-      rgba(0,0,0,.34) 0 2px, rgba(255,255,255,.02) 2px 4px, transparent 4px 50px);
-    animation:beltrun 1.6s linear infinite;
-  }
-  @keyframes beltrun{to{transform:translateX(-50px)}}
-  .belt-track{
-    position:absolute;top:50%;left:0;transform:translateY(-50%);
-    display:flex;align-items:center;gap:26px;width:max-content;padding-left:26px;
-    animation:slide 26s linear infinite;
-  }
-  @keyframes slide{to{transform:translate(-50%,-50%)}}
-  .crate{
-    position:relative;display:inline-flex;align-items:center;gap:12px;
-    background:linear-gradient(180deg,#27394c,#1a2836);
-    border:1px solid var(--line-2);border-top-color:rgba(255,255,255,.22);
-    border-radius:5px;padding:15px 24px;box-shadow:0 12px 22px -10px rgba(0,0,0,.75);
-    font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--paper);
-  }
-  .crate::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--orange);box-shadow:0 0 0 3px rgba(255,107,44,.15)}
-  .belt-rollers{height:15px;background-color:#0b121b;
-    background-image:radial-gradient(circle at 7px 6px,#3a4d61 5px,#0b121b 5.6px);background-size:21px 15px}
-
-  /* ---------- SECTION SHELL ---------- */
-  .band{padding:104px 0}
-  .sec-head{max-width:760px;margin-bottom:54px}
-  .sec-head h2{font-size:clamp(34px,5vw,60px);margin:16px 0 0}
-  .sec-head p{color:var(--muted);font-size:17px;margin-top:18px;max-width:560px}
-
-  /* ---------- CARDS ---------- */
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-  .card{
-    background:linear-gradient(180deg,var(--steel-850),var(--steel-900));
-    border:1px solid var(--line);border-radius:8px;padding:32px 30px 34px;
-    transition:transform .25s ease,border-color .25s ease;
-  }
-  .card:hover{transform:translateY(-4px);border-color:var(--line-2)}
-  .card .idx{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--orange);letter-spacing:.06em}
-  .card h3{font-family:'Anton',sans-serif;font-weight:400;font-size:30px;letter-spacing:.01em;text-transform:uppercase;margin:18px 0 12px}
-  .card p{color:var(--muted);font-size:15px}
-  .ico{
-    width:54px;height:54px;border-radius:8px;display:grid;place-items:center;margin-bottom:8px;
-    border:1px solid var(--line-2);background:rgba(255,107,44,.08);color:var(--orange);
-  }
-  .ico svg{width:28px;height:28px}
-
-  /* ---------- SHOWCASE ---------- */
-  .showcase{position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .showcase img{width:100%;height:clamp(380px,56vh,620px);object-fit:cover;filter:contrast(1.04) saturate(1.05)}
-  .showcase::before{
-    content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.14;mix-blend-mode:multiply;
-    background-image:radial-gradient(circle,#000 1.1px,transparent 1.4px);background-size:7px 7px;
-  }
-  .showcase .ov{
-    position:absolute;inset:0;z-index:3;display:flex;align-items:center;
-    background:linear-gradient(90deg,rgba(7,10,15,.9) 0%,rgba(7,10,15,.55) 42%,transparent 72%);
-  }
-  .show-card{max-width:500px}
-  .show-card h2{font-size:clamp(30px,4vw,50px);margin:18px 0 0}
-  .show-card p{color:var(--muted);margin-top:16px;font-size:16px;max-width:420px}
-
-  /* ---------- STATS ---------- */
-  .stats{padding:84px 0;border-bottom:1px solid var(--line)}
-  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr)}
-  .stat{padding:8px 28px;border-left:1px solid var(--line)}
-  .stat:first-child{border-left:0;padding-left:0}
-  .stat .num{font-family:'Anton',sans-serif;font-size:clamp(46px,6vw,72px);line-height:1;color:var(--paper)}
-  .stat .num span{color:var(--orange)}
-  .stat .lbl{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:14px}
-
-  /* ---------- CTA ---------- */
-  .cta{padding:120px 0;text-align:center;background:
-    radial-gradient(80% 110% at 50% 0%, rgba(255,107,44,.14), transparent 62%),var(--steel-900);
-    border-bottom:1px solid var(--line);}
-  .cta h2{font-size:clamp(46px,8vw,104px);margin:18px 0 0;filter:drop-shadow(2px 4px 5px rgba(0,0,0,.45))}
-  .cta p{color:var(--muted);font-size:18px;margin:22px auto 36px;max-width:460px}
-
-  /* ---------- FOOTER ---------- */
-  footer{padding:56px 0;background:var(--steel-950)}
-  .foot-in{display:flex;align-items:flex-start;justify-content:space-between;gap:32px;flex-wrap:wrap}
-  .foot-brand{font-family:'Anton',sans-serif;font-size:26px;color:var(--paper);transform:skewX(-5deg);display:inline-flex;align-items:baseline}
-  .foot-brand i{display:inline-block;width:7px;height:7px;background:var(--orange);margin-left:5px;transform:skewX(5deg)}
-  .foot-links{display:flex;gap:30px;flex-wrap:wrap}
-  .foot-links a{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none}
-  .foot-links a:hover{color:var(--paper)}
-  .copy{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted-2);width:100%;margin-top:34px;padding-top:24px;border-top:1px solid var(--line)}
-
-  /* ---------- ANIM ---------- */
-  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
-  .reveal.in{opacity:1;transform:none}
+  /* ---------- LOAD-IN ---------- */
   .load{opacity:0;animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
   @keyframes rise{to{opacity:1;transform:none}}
   .d1{animation-delay:.05s}.d2{animation-delay:.16s}.d3{animation-delay:.27s}.d4{animation-delay:.38s}
 
-  /* ---------- RESPONSIVE ---------- */
-  @media(max-width:900px){
-    .grid-3{grid-template-columns:1fr}
-    .nav-links a:not(.btn){display:none}
-    .feed-tag{top:84px}
-    .stat-grid{grid-template-columns:repeat(2,1fr)}
-    .stat{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:22px;margin-top:6px}
-    .stat:first-child,.stat:nth-child(2){border-top:0}
-    .showcase .ov{background:linear-gradient(180deg,rgba(7,10,15,.45),rgba(7,10,15,.9))}
-    .show-card{margin:0 4px}
-  }
   @media(max-width:540px){
     .wrap{padding:0 20px}
-    .stat-grid{grid-template-columns:1fr}
-    .stat{border-top:1px solid var(--line);padding-top:22px;margin-top:6px}
-    .stat:first-child{border-top:0}
+    .feed-tag{top:20px;right:20px}
   }
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
-    .reveal{opacity:1;transform:none}
   }
 </style>
 </head>
 <body>
 <div class="grain"></div>
 
-<!-- NAV -->
-<nav>
-  <div class="wrap nav-in">
-    <a href="#" class="brand">PROCEDURAL<i></i></a>
-    <div class="nav-links">
-      <a href="#model">Model</a>
-      <a href="#how">How it works</a>
-      <a href="#proof">Proof</a>
-      <a href="#deploy" class="btn primary sm">Request access</a>
-    </div>
-  </div>
-</nav>
-
 <!-- HERO: full-bleed live feed (robot_arms.png → replace with GIF) -->
-<header class="hero" id="model">
+<header class="hero">
   <div class="hero-scrim"></div>
-  <span class="feed-tag"><span class="rec"></span>Live · Line 02-E</span>
+  <span class="feed-tag"><span class="rec"></span>Live</span>
   <div class="wrap hero-inner">
-    <span class="kicker load d1">Finetuned Vision · Language · Action</span>
-    <h1 class="load d2"><span class="bam">PROCEDURAL</span></h1>
-    <p class="lede load d3">One model that sees the part, reads the task, and works the line. Placeholder copy — edit me.</p>
+    <span class="kicker load d1">Finetunable VLA Architecture for Automated Manufacturing</span>
+    <h1 class="load d2"><span class="bam">PROCEDURAL ROBOTICS</span></h1>
+    <p class="lede load d3">Beta-testing in Dongguan, China.</p>
     <div class="hero-cta load d4">
-      <a href="#deploy" class="btn primary">Request access</a>
-      <a href="#how" class="btn ghost">Watch demo</a>
+      <a href="https://www.linkedin.com/posts/noahhweiss_for-my-cs153-final-project-i-built-farm-ugcPost-7468499349677948928-CPAd/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEDG_6wBiH67VbCo5iskvof-gJThSIlT2p4" class="btn"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7L0 14z"/></svg>Watch demo</a>
     </div>
   </div>
 </header>
-
-<!-- CONVEYOR BELT -->
-<div class="belt" aria-hidden="true">
-  <div class="belt-rail"></div>
-  <div class="belt-surface">
-    <div class="belt-slats"></div>
-    <div class="belt-track">
-      <span class="crate">Toys</span><span class="crate">Tools</span><span class="crate">Packaging</span><span class="crate">Assembly</span><span class="crate">Pick &amp; place</span><span class="crate">Retooling</span>
-      <span class="crate">Toys</span><span class="crate">Tools</span><span class="crate">Packaging</span><span class="crate">Assembly</span><span class="crate">Pick &amp; place</span><span class="crate">Retooling</span>
-    </div>
-  </div>
-  <div class="belt-rollers"></div>
-  <div class="belt-rail"></div>
-</div>
-
-<!-- PROBLEM -->
-<section class="band" id="proof">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">01 — The problem</span>
-      <h2 class="display">Commodity lines change faster than robots can</h2>
-      <p>Short placeholder description. Edit this to frame the problem in a sentence or two.</p>
-    </div>
-    <div class="grid-3">
-      <div class="card reveal">
-        <div class="idx">01</div>
-        <h3>Lines change daily</h3>
-        <p>New SKU, new layout, new part. Placeholder description text.</p>
-      </div>
-      <div class="card reveal">
-        <div class="idx">02</div>
-        <h3>Robots can't adapt</h3>
-        <p>Months of reprogramming per change. Placeholder description text.</p>
-      </div>
-      <div class="card reveal">
-        <div class="idx">03</div>
-        <h3>One model fixes it</h3>
-        <p>Generalist VLA, retasked in minutes. Placeholder description text.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="band" id="how" style="border-top:1px solid var(--line);background:linear-gradient(180deg,var(--steel-900),var(--steel-950))">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">02 — How it works</span>
-      <h2 class="display">Vision in, action out — one network</h2>
-      <p>Three capabilities, a single finetuned model. Placeholder description text.</p>
-    </div>
-    <div class="grid-3">
-      <div class="card reveal">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-        <h3>Vision</h3>
-        <p>It sees the part on the belt and grasps the scene. Placeholder.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></div>
-        <h3>Language</h3>
-        <p>It reads the task in plain words — no robot code. Placeholder.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4"/><circle cx="12" cy="12" r="3.4"/></svg></div>
-        <h3>Action</h3>
-        <p>It moves the arm with closed-loop precision. Placeholder.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SHOWCASE -->
-<section class="showcase">
-  <img src="factory_line.png" alt="Automated factory transit line" />
-  <div class="ov">
-    <div class="wrap" style="width:100%">
-      <div class="show-card reveal">
-        <span class="kicker">Deployed</span>
-        <h2 class="display">Running on real lines</h2>
-        <p>From pilot cell to full floor. Placeholder caption — drop in your deployment metrics here.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<section class="stats">
-  <div class="wrap">
-    <div class="stat-grid">
-      <div class="stat reveal"><div class="num">10<span>×</span></div><div class="lbl">Faster retooling</div></div>
-      <div class="stat reveal"><div class="num">0</div><div class="lbl">Lines of robot code</div></div>
-      <div class="stat reveal"><div class="num">1</div><div class="lbl">Model, any task</div></div>
-      <div class="stat reveal"><div class="num">24<span>/</span>7</div><div class="lbl">Floor uptime</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta" id="deploy">
-  <div class="wrap">
-    <span class="kicker" style="justify-content:center">Ready when you are</span>
-    <h2><span class="bam">DEPLOY</span></h2>
-    <p>Bring PROCEDURAL to your floor. Placeholder line — edit me.</p>
-    <a href="#" class="btn primary">Book a pilot</a>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="wrap foot-in">
-    <div class="foot-brand">PROCEDURAL<i></i></div>
-    <div class="foot-links">
-      <a href="#model">Model</a>
-      <a href="#how">How it works</a>
-      <a href="#proof">Proof</a>
-      <a href="#deploy">Request access</a>
-    </div>
-    <div class="copy">© 2026 PROCEDURAL — Placeholder. A finetuned VLA model for commodity manufacturing.</div>
-  </div>
-</footer>
-
-<script>
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-  },{threshold:.16});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-</script>
 </body>
 </html>
